@@ -13,7 +13,7 @@ function getMoneyBackAfter5Min() public {
     account0.transfer(reward/numPlayer);
     account1.transfer(reward - (reward/numPlayer));
     
-    reward = 0;
+    _resetGame();
 }
 ```
 ทำให้สามารถถอนเงินได้หลังผ่านไป 5 นาทีหากอีกคนหนึ่งไม่ยอมเล่น
@@ -76,7 +76,7 @@ function getMonetBackAfter10MinIfAnotherNotReveal() public {
         account0.transfer(reward);
     }
     
-    reward = 0;
+    _resetGame();
 }
 ```
 หากอีกคนหนึ่งไม่ยอม reveal หลังผ่านไป 10 นาทีเราจะสามารถถอนเงินทั้งหมดออกมาได้เลย เสมือนเป็นผู้ชนะ
@@ -120,6 +120,8 @@ function _checkWinnerAndPay() private {
         account0.transfer(reward / 2);
         account1.transfer(reward / 2);
     }
+
+    _resetGame();
 }
 ```
 ตัดสินใจโดยจะชนะเมื่อชอยส์เลื่อนไปข้างหน้า 1 หรือ 3 หน่วย โดยทั้งคู้ต้อง reveal ก่อนโดยทำการส่ง salt และ choice ของจริงเพื่อ reveal และตัดสิน
