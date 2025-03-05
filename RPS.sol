@@ -79,10 +79,7 @@ contract RPS is CommitReveal, TimeUnit {
         require(elapsedMinutes() >= 5 minutes);
 
         address payable account0 = payable (players[0]);
-        address payable account1 = payable (players[1]);
-
-        account0.transfer(reward/numPlayer);
-        account1.transfer(reward - (reward/numPlayer));
+        account0.transfer(reward);
         
         _resetGame();
     }
