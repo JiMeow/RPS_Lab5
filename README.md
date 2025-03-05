@@ -18,6 +18,7 @@ function getMoneyBackAfter5Min() public {
 ```
 ทำให้สามารถถอนเงินได้หลังผ่านไป 5 นาทีหากอีกคนหนึ่งไม่ยอมเล่น
 <br/>
+<hr/>
 
 อธิบายโค้ดส่วนที่ทำการซ่อน choice และ commit
 ```solidity
@@ -56,6 +57,7 @@ function reveal(uint choice, bytes32 salt) public {
 ```
 ข้อมูลที่เก็บใน smartcontract หรือส่งเข้าไปนั้นล้วน hash หมดแล้ว เมื่อทุกคนลงผลเสร็จจึงค่อยมาเปิดเผยผ่าน reveal
 <br/>
+<hr/>
 
 อธิบายโค้ดส่วนที่จัดการกับความล่าช้าที่ผู้เล่นไม่ครบทั้งสองคนเสียที
 ```solidity
@@ -79,6 +81,7 @@ function getMonetBackAfter10MinIfAnotherNotReveal() public {
 ```
 หากอีกคนหนึ่งไม่ยอม reveal หลังผ่านไป 10 นาทีเราจะสามารถถอนเงินทั้งหมดออกมาได้เลย เสมือนเป็นผู้ชนะ
 <br/>
+<hr/>
 
 อธิบายโค้ดส่วนทำการ reveal และนำ choice มาตัดสินผู้ชนะ
 ```solidity
@@ -121,3 +124,4 @@ function _checkWinnerAndPay() private {
 ```
 ตัดสินใจโดยจะชนะเมื่อชอยส์เลื่อนไปข้างหน้า 1 หรือ 3 หน่วย โดยทั้งคู้ต้อง reveal ก่อนโดยทำการส่ง salt และ choice ของจริงเพื่อ reveal และตัดสิน
 <br/>
+<hr/>
