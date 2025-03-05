@@ -84,7 +84,7 @@ contract RPS is CommitReveal, TimeUnit {
         account0.transfer(reward/numPlayer);
         account1.transfer(reward - (reward/numPlayer));
         
-        reward = 0;
+        _resetGame();
     }
 
     function getMonetBackAfter10MinIfAnotherNotReveal() public {
@@ -102,7 +102,7 @@ contract RPS is CommitReveal, TimeUnit {
             account0.transfer(reward);
         }
         
-        reward = 0;
+        _resetGame();
     }
 
     function _checkWinnerAndPay() private {
@@ -124,5 +124,23 @@ contract RPS is CommitReveal, TimeUnit {
             account0.transfer(reward / 2);
             account1.transfer(reward / 2);
         }
+        _resetGame();
+    }
+
+     function _resetGame() private {
+        numPlayer = 0;
+        numPlayerReveal = 0;
+        reward = 0;
+        numInput = 0;
+
+        // Clear all mappings
+        for (uint i = 0; i < players.length; i++) {
+            delete player_choice[players[i]];
+            delete player_not_played[players[i]];
+            delete player_not_revealed[players[i]];
+        }
+
+        // Clear players array
+        delete players;
     }
 }
