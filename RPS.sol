@@ -3,10 +3,11 @@
 
 import "./CommitReveal.sol";
 import "./TimeUnit.sol";
+import "./ERC20.sol";
 
 pragma solidity >=0.7.0 <0.9.0;
 
-contract RPS is CommitReveal, TimeUnit {
+contract RPS is CommitReveal, TimeUnit, ERC20 {
     uint public numPlayer = 0;
     uint public numPlayerReveal = 0;
     uint public reward = 0;
@@ -18,20 +19,16 @@ contract RPS is CommitReveal, TimeUnit {
     address[] public players;
 
     uint public numInput = 0;
+    uint private cost = 0.000001 ether;
 
     function addPlayer() public payable {
         require(numPlayer < 2);
-        require(msg.sender == 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);
-        require(msg.sender == 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2);
-        require(msg.sender == 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db);
-        require(msg.sender == 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB);
-
         if (numPlayer > 0) {
             require(msg.sender != players[0]);
         }
 
-        require(msg.value == 1 ether);
-        reward += msg.value;
+        require(allowance[msg.sender][address(this)] == cost);
+
         player_not_played[msg.sender] = true;
         player_not_revealed[msg.sender] = true;
 
@@ -47,11 +44,15 @@ contract RPS is CommitReveal, TimeUnit {
         return getHash(keccak256(abi.encodePacked(choice, salt)));
     }
 
-    function input(bytes32 hashedInput) public  {
+    function input(bytes32 hashedInput) payable public  {
         require(numPlayer == 2);
         require(player_not_played[msg.sender]);
 
         commit(hashedInput);
+        
+        transferFrom(players[0], address(this), cost);
+        transferFrom(players[1], address(this), cost);
+        reward += cost;
         player_not_played[msg.sender] = false;
 
         numInput++;
@@ -73,18 +74,7 @@ contract RPS is CommitReveal, TimeUnit {
         }
     }
 
-    function getMoneyBackAfter5Min() public {
-        // if someone not commit the other can get money back
-        require(numInput < 2);
-        require(elapsedMinutes() >= 5 minutes);
-
-        address payable account0 = payable (players[0]);
-        account0.transfer(reward);
-        
-        _resetGame();
-    }
-
-    function getMonetBackAfter10MinIfAnotherNotReveal() public {
+    function getMoneyBackAfter10MinIfAnotherNotReveal() public {
         // if someone not reveal the other can get money back
         require(numInput == 2);
         require(numPlayerReveal < 2);
@@ -98,8 +88,17 @@ contract RPS is CommitReveal, TimeUnit {
         } else {
             account0.transfer(reward);
         }
-        
-        _resetGame();
+    }
+
+    function getMoneyBackIfNoOneReveal() public {
+        require(numInput == 2);
+        require(numPlayerReveal == 0);
+        require(elapsedMinutes() >= 10 minutes);
+
+        if (player_not_revealed[players[0]] && player_not_played[players[1]]) {
+            address payable newGuy = payable (msg.sender);
+            newGuy.transfer(cost * 2);
+        }
     }
 
     function _checkWinnerAndPay() private {
@@ -121,23 +120,5 @@ contract RPS is CommitReveal, TimeUnit {
             account0.transfer(reward / 2);
             account1.transfer(reward / 2);
         }
-        _resetGame();
-    }
-
-     function _resetGame() private {
-        numPlayer = 0;
-        numPlayerReveal = 0;
-        reward = 0;
-        numInput = 0;
-
-        // Clear all mappings
-        for (uint i = 0; i < players.length; i++) {
-            delete player_choice[players[i]];
-            delete player_not_played[players[i]];
-            delete player_not_revealed[players[i]];
-        }
-
-        // Clear players array
-        delete players;
     }
 }
